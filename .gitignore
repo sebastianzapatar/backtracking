@@ -1,0 +1,10 @@
+# Ignorar scripts y caché de Python
+*.py
+__pycache__/
+
+# Ignorar presentaciones de PowerPoint
+*.pptx
+~$*.pptx  # Archivos temporales ocultos de PowerPoint que se generan al abrir presentaciones
+
+# Ignore clases compiladas de Java (ya que creamos archivos .java)
+*.class
