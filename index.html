@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listas Doblemente Ligadas y Circulares</title>
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css" id="theme">
+    
+    <!-- Highlight.js for code syntax -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* Paleta de colores actualizada Universidad EIA (Teal y Dark Teal) */
+        :root {
+            --eia-dark: #024B57; /* Teal oscuro */
+            --eia-light-blue: #15B0C5;  /* Cyan/Teal claro */
+            --eia-bg: #F8F9FA;
+        }
+
+        .reveal .slide-background {
+            background-color: var(--eia-bg);
+        }
+
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5 {
+            color: var(--eia-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-transform: none;
+            font-weight: bold;
+        }
+
+        .reveal h1 { font-size: 2.2em; }
+        .reveal h2 { font-size: 1.6em; }
+        .reveal p, .reveal li {
+            color: #333;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        
+        .reveal .logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 150px;
+            z-index: 1000;
+        }
+
+        .highlight-text {
+            color: var(--eia-light-blue);
+            font-weight: bold;
+        }
+
+        .code-wrapper {
+            background: #282c34;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 0.6em !important;
+        }
+
+        /* Diagrams */
+        .diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 40px 0;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .node {
+            display: flex;
+            border: 2px solid var(--eia-dark);
+            border-radius: 8px;
+            background: white;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .node-part {
+            padding: 10px 15px;
+            border-right: 1px solid var(--eia-dark);
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .node-part:last-child {
+            border-right: none;
+        }
+
+        .node-data { background-color: rgba(2, 75, 87, 0.1); }
+        .node-ptr { background-color: rgba(21, 176, 197, 0.1); color: var(--eia-dark); }
+
+        .arrow {
+            font-size: 1.5em;
+            color: var(--eia-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        /* Líneas para la lista circular */
+        .circular-line-top {
+            position: absolute;
+            top: -30px;
+            left: 15%;
+            width: 70%;
+            height: 30px;
+            border-top: 3px solid var(--eia-light-blue);
+            border-left: 3px solid var(--eia-light-blue);
+            border-right: 3px solid var(--eia-light-blue);
+            border-radius: 15px 15px 0 0;
+            z-index: 1;
+        }
+
+        .circular-line-top::after {
+            content: "▶";
+            position: absolute;
+            right: -9px;
+            bottom: -15px;
+            color: var(--eia-light-blue);
+            font-size: 20px;
+        }
+
+        .circular-line-bottom {
+            position: absolute;
+            bottom: -30px;
+            left: 15%;
+            width: 70%;
+            height: 30px;
+            border-bottom: 3px solid var(--eia-dark);
+            border-left: 3px solid var(--eia-dark);
+            border-right: 3px solid var(--eia-dark);
+            border-radius: 0 0 15px 15px;
+            z-index: 1;
+        }
+
+        .circular-line-bottom::before {
+            content: "◀";
+            position: absolute;
+            left: -9px;
+            top: -15px;
+            color: var(--eia-dark);
+            font-size: 20px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7em;
+        }
+        .table-custom th {
+            background-color: var(--eia-dark);
+            color: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .table-custom td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Header / Footer line */
+        .reveal::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, var(--eia-dark) 50%, var(--eia-light-blue) 50%);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación -->
+    <div style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
+        <a href="pilas_colas.html" style="background: var(--eia-light-blue); color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-family: sans-serif; font-size: 14px; font-weight: bold;">➡️ Ver Pilas y Colas</a>
+    </div>
+
+    <!-- Logo global en la esquina -->
+    
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Diapositiva 1: Título con Logo Grande -->
+            <section>
+                <img src="./images.png" alt="Universidad EIA" style="max-width: 400px; margin-bottom: 30px; border: none; box-shadow: none; background: transparent;">
+                <h1>Listas Doblemente Ligadas</h1>
+                <h2>y Circulares Dobles</h2>
+                <p style="margin-top: 30px;"><strong>Estructuras de Datos</strong></p>
+                <p>Presentación Educativa</p>
+            </section>
+
+            <!-- Diapositiva 2: Motivación -->
+            <section>
+                <h2>¿Por qué existen? <span class="highlight-text">(Motivación)</span></h2>
+                <p>Las <strong>listas ligadas simples</strong> solo permiten el recorrido en <strong>una sola dirección</strong>. Esto genera ineficiencias cuando:</p>
+                <ul>
+                    <li>Necesitamos acceder al nodo anterior frecuentemente.</li>
+                    <li>Queremos eliminar un nodo dado sin tener que recorrer toda la lista.</li>
+                    <li>Necesitamos recorrer la estructura en reversa.</li>
+                </ul>
+                <p><strong>Solución:</strong> Agregar un puntero adicional que apunte al nodo previo.</p>
+            </section>
+
+            <!-- Diapositiva 3: Listas Doblemente Ligadas -->
+            <section>
+                <h2>Listas Doblemente Ligadas</h2>
+                <p>Cada nodo contiene <strong>tres</strong> campos:</p>
+                <ol>
+                    <li>Puntero al nodo <span class="highlight-text">Anterior (prev)</span>.</li>
+                    <li>El <strong>Dato (data)</strong>.</li>
+                    <li>Puntero al nodo <span class="highlight-text">Siguiente (next)</span>.</li>
+                </ol>
+                
+                <div class="diagram">
+                    <div><strong style="color:var(--eia-light-blue)">NULL</strong></div>
+                    <div class="arrow">⟵</div>
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">10</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    <div class="arrow"><span>⇄</span></div>
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">20</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    <div class="arrow"><span>⇄</span></div>
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">30</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    <div class="arrow">⟶</div>
+                    <div><strong style="color:var(--eia-light-blue)">NULL</strong></div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 4: Uso en la Industria -->
+            <section>
+                <h2>Ejemplos en la Industria</h2>
+                <p>¿Cuándo se usan las listas doblemente ligadas en el mundo real?</p>
+                <ul style="font-size: 0.8em; line-height: 1.6;">
+                    <li><strong class="highlight-text">Navegadores Web:</strong> El historial de páginas "Atrás" y "Adelante". Cada página es un nodo, puedes retroceder (prev) o avanzar (next) en O(1).</li>
+                    <li><strong class="highlight-text">Editores de Texto/Software:</strong> La funcionalidad de "Deshacer" (Undo) y "Rehacer" (Redo). Mantienes el estado actual y puedes moverte libremente entre estados pasados y futuros.</li>
+                    <li><strong class="highlight-text">Sistemas Operativos:</strong> Gestión de hilos (threads) y procesos en ejecución en las colas del scheduler, donde necesitan ser removidos o insertados rápidamente.</li>
+                </ul>
+            </section>
+
+            <!-- Diapositiva 5: Ventajas y Desventajas -->
+            <section>
+                <h2>Ventajas vs Desventajas</h2>
+                <table class="table-custom">
+                    <tr>
+                        <th>✅ Ventajas</th>
+                        <th>❌ Desventajas</th>
+                    </tr>
+                    <tr>
+                        <td>Recorrido bidireccional fluido.</td>
+                        <td>Requieren más memoria (un puntero extra).</td>
+                    </tr>
+                    <tr>
+                        <td>Eliminación en <strong>O(1)</strong> si se tiene el nodo.</td>
+                        <td>Lógica de inserción/eliminación más extensa.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Diapositiva 6: Código - Nodo -->
+            <section>
+                <h2>Código: Estructura del Nodo</h2>
+                <pre class="code-wrapper"><code class="language-java">class NodoDoble&lt;T&gt; {
+    public T dato;
+    public NodoDoble&lt;T&gt; prev; // Puntero al anterior
+    public NodoDoble&lt;T&gt; next; // Puntero al siguiente
+
+    public NodoDoble(T dato) {
+        this.dato = dato;
+        this.prev = null;
+        this.next = null;
+    }
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 7: Listas Circulares Dobles -->
+            <section>
+                <h2>Listas Circulares Dobles</h2>
+                <p>Una lista doble donde <strong>no existen punteros NULL</strong>.</p>
+                <ul>
+                    <li>El <code>next</code> del último nodo apunta a la <strong class="highlight-text">cabeza</strong>.</li>
+                    <li>El <code>prev</code> de la cabeza apunta al <strong class="highlight-text">último nodo</strong>.</li>
+                </ul>
+                
+                <div class="diagram">
+                    <div class="circular-line-top"></div> <!-- Flecha de último a primero (NEXT) -->
+                    
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">10</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    <div class="arrow"><span>⇄</span></div>
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">20</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    <div class="arrow"><span>⇄</span></div>
+                    <div class="node">
+                        <div class="node-part node-ptr">Prev</div>
+                        <div class="node-part node-data">30</div>
+                        <div class="node-part node-ptr">Next</div>
+                    </div>
+                    
+                    <div class="circular-line-bottom"></div> <!-- Flecha de primero a último (PREV) -->
+                </div>
+                <p style="font-size: 0.55em; color: gray;">Línea superior: Puntero NEXT del 30 al 10.<br>Línea inferior: Puntero PREV del 10 al 30.</p>
+            </section>
+
+            <!-- Diapositiva 8: Uso Circulares en la Industria -->
+            <section>
+                <h2>Ejemplos en la Industria (Circulares)</h2>
+                <ul style="font-size: 0.8em; line-height: 1.6;">
+                    <li><strong class="highlight-text">Reproductores de Música:</strong> Playlists cíclicos. Cuando llegas a la última canción y presionas "Siguiente", pasas a la primera canción.</li>
+                    <li><strong class="highlight-text">Sistemas Operativos (Alt-Tab):</strong> El carrusel para cambiar entre aplicaciones abiertas. Presionar Alt+Tab avanza continuamente en ciclo.</li>
+                    <li><strong class="highlight-text">Juegos Multijugador por Turnos:</strong> Mantener la estructura de turnos. Al terminar el turno del último, vuelve automáticamente al primero.</li>
+                </ul>
+            </section>
+
+            <!-- Diapositiva 9: Código Circular -->
+            <section>
+                <h2>Código: Inserción Circular Doble</h2>
+                <pre class="code-wrapper"><code class="language-java">public void insertar(T dato) {
+    NodoDoble&lt;T&gt; nuevo = new NodoDoble&lt;&gt;(dato);
+    if (cabeza == null) {
+        cabeza = nuevo;
+        cabeza.next = cabeza; // Se apunta a sí mismo
+        cabeza.prev = cabeza;
+    } else {
+        NodoDoble&lt;T&gt; ultimo = cabeza.prev; // O(1)
+        
+        nuevo.next = cabeza;
+        nuevo.prev = ultimo;
+        ultimo.next = nuevo;
+        cabeza.prev = nuevo;
+    }
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 10: Mostrar Circular -->
+            <section>
+                <h2>Código: Recorrido Seguro Circular</h2>
+                <p>Se debe tener cuidado de <strong>no hacer un ciclo infinito</strong>.</p>
+                <pre class="code-wrapper"><code class="language-java">public void recorrerAdelante() {
+    if (cabeza == null) return;
+    
+    NodoDoble&lt;T&gt; actual = cabeza;
+    do {
+        System.out.print(actual.dato + " <-> ");
+        actual = actual.next;
+    } while (actual != cabeza); // Condición de parada vital
+    
+    System.out.println("(Vuelta al inicio)");
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 11: Complejidades Big-O -->
+            <section>
+                <h2>Complejidad (Big-O)</h2>
+                <p>Análisis temporal y espacial de las operaciones.</p>
+                <table class="table-custom" style="font-size: 0.6em; margin-top: 20px;">
+                    <tr>
+                        <th>Operación</th>
+                        <th>Lista Doble</th>
+                        <th>Circular Doble</th>
+                        <th>Razón</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Acceso / Búsqueda</strong></td>
+                        <td>O(n)</td>
+                        <td>O(n)</td>
+                        <td>No tienen un índice directo; hay que recorrer nodo a nodo.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inserción (Extremos)</strong></td>
+                        <td>O(1)</td>
+                        <td>O(1)</td>
+                        <td>Si hay puntero a cola (Doble) o con cabeza.prev (Circular), es instantáneo.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inserción (En Medio)</strong></td>
+                        <td>O(n)</td>
+                        <td>O(n)</td>
+                        <td>Toma O(n) buscar la posición, y O(1) desligar y conectar los punteros.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eliminación (Extremos)</strong></td>
+                        <td>O(1)</td>
+                        <td>O(1)</td>
+                        <td>Muy rápido gracias a los punteros extremos prev y next.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eliminación (En Medio)</strong></td>
+                        <td>O(n)</td>
+                        <td>O(n)</td>
+                        <td>Se repite el patrón de la inserción: buscar cuesta O(n), borrar cuesta O(1).</td>
+                    </tr>
+                </table>
+                <div style="margin-top: 20px; font-size: 0.7em; background-color: rgba(21, 176, 197, 0.1); padding: 15px; border-radius: 8px; border-left: 5px solid var(--eia-dark);">
+                    <strong>Memoria Espacial:</strong> Ambas consumen <strong>O(n)</strong> de memoria total. Tienen una pequeña sobrecarga por usar más bytes: cada nodo almacena dos referencias (<code>next</code> y <code>prev</code>), consumiendo más RAM que un arreglo tradicional o una lista simple.
+                </div>
+            </section>
+
+            <!-- Diapositiva 12: Errores Típicos -->
+            <section>
+                <h2>Errores Típicos de Programación</h2>
+                <ul style="font-size: 0.8em; line-height: 1.6;">
+                    <li><strong class="highlight-text">NullPointerException (Listas Dobles):</strong> Ocurre al intentar acceder a <code>nodo.prev</code> cuando <code>nodo</code> es la cabeza, o a <code>nodo.next</code> cuando es la cola.</li>
+                    <li><strong class="highlight-text">Bucles Infinitos (Circulares):</strong> Al recorrer una lista circular con un <code>while(actual != null)</code> la lista nunca terminará. Siempre se debe usar una condición de parada como <code>while(actual != cabeza)</code>.</li>
+                    <li><strong class="highlight-text">Perder la Referencia:</strong> Al insertar o eliminar, si no se actualizan los 4 punteros implicados (el <code>next</code> y <code>prev</code> de ambos nodos vecinos), la cadena se rompe y se pierde memoria.</li>
+                    <li><strong class="highlight-text">No actualizar la cabeza/cola:</strong> Olvidar reasignar <code>cabeza = nuevoNodo</code> si la inserción ocurre al principio de la lista.</li>
+                </ul>
+            </section>
+
+            <!-- Diapositiva 13: Casos Extremos (Eliminar) -->
+            <section>
+                <h2 style="margin-bottom: 0;">Casos Extremos (Eliminar)</h2>
+                <p style="margin-top: 10px; font-size: 0.75em;">Siempre debes validar estos 4 escenarios críticos al intentar borrar un nodo:</p>
+                <table class="table-custom" style="font-size: 0.52em; margin-top: 10px; line-height: 1.3;">
+                    <tr>
+                        <th style="width: 22%; padding: 6px;">Caso Crítico</th>
+                        <th style="padding: 6px;">Problema y Solución</th>
+                    </tr>
+                    <tr>
+                        <td style="color: #c90000; font-weight: bold; padding: 6px;">Lista Vacía</td>
+                        <td style="text-align: left; padding: 6px;">Intentar borrar con <code>cabeza == null</code> lanza una excepción. <strong style="color: var(--eia-dark);">Solución:</strong> Inicia el método con <code>if (cabeza == null) return false;</code></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c90000; font-weight: bold; padding: 6px;">Un Solo Nodo</td>
+                        <td style="text-align: left; padding: 6px;">Al borrar el único nodo, la lista queda sucia en memoria si no se limpia. <strong style="color: var(--eia-dark);">Solución:</strong> La <code>cabeza</code> y <code>cola</code> deben apuntar a <code>null</code>.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c90000; font-weight: bold; padding: 6px;">Eliminar Cabeza</td>
+                        <td style="text-align: left; padding: 6px;">Borrar el primer nodo requiere mover la cabeza. <strong style="color: var(--eia-dark);">Solución:</strong> Asigna <code>cabeza = cabeza.next</code> y luego <code>cabeza.prev = null</code> (para evitar enlaces rotos).</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c90000; font-weight: bold; padding: 6px;">Eliminar Cola</td>
+                        <td style="text-align: left; padding: 6px;">Borrar el último nodo requiere mover la cola. <strong style="color: var(--eia-dark);">Solución:</strong> Asigna <code>cola = cola.prev</code> y asegúrate de hacer <code>cola.next = null</code>.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Diapositiva 14: Cuándo NO usarlas -->
+            <section>
+                <h2>¿Por qué NO usar Listas Dobles?</h2>
+                <p>No siempre son la mejor opción. Aquí te mostramos cuándo evitarlas:</p>
+                <table class="table-custom" style="font-size: 0.65em; margin-top: 20px;">
+                    <tr>
+                        <th>Escenario</th>
+                        <th>¿Usar Lista Doble?</th>
+                        <th>Mejor Alternativa</th>
+                    </tr>
+                    <tr>
+                        <td>Solo necesitas insertar al final y leer desde el principio.</td>
+                        <td style="color: #c90000; font-weight: bold;">NO</td>
+                        <td>Lista Simple (ahorras un 50% de memoria en punteros).</td>
+                    </tr>
+                    <tr>
+                        <td>Necesitas acceso inmediato por índice a cualquier elemento.</td>
+                        <td style="color: #c90000; font-weight: bold;">NO</td>
+                        <td>Arrays / ArrayList (tienen acceso O(1)).</td>
+                    </tr>
+                    <tr>
+                        <td>Sistemas embebidos con memoria RAM muy limitada (IoT).</td>
+                        <td style="color: #c90000; font-weight: bold;">NO</td>
+                        <td>Arreglos estáticos o Listas Simples (para evitar el overhead de memoria).</td>
+                    </tr>
+                    <tr>
+                        <td>Se requiere retroceder constantemente o deshacer acciones.</td>
+                        <td style="color: green; font-weight: bold;">SÍ</td>
+                        <td>Lista Doblemente Ligada.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Diapositiva 15: Ejercicio Práctico -->
+            <section>
+                <h2>👨‍💻 Ejercicio Práctico (Clase)</h2>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; border: 2px solid var(--eia-dark); box-shadow: 3px 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: var(--eia-light-blue);">Reto: "El Navegador Web"</h3>
+                    <p style="font-size: 0.8em; text-align: justify; margin-bottom: 10px;">
+                        Estás construyendo la funcionalidad de historial de un navegador. Diseña un programa usando una <strong>Lista Doblemente Ligada</strong> genérica (String) que simule las siguientes acciones:
+                    </p>
+                    <ul style="font-size: 0.75em; text-align: left;">
+                        <li><strong>Visitar página (Insertar):</strong> Agrega un nuevo nodo al final y lo establece como la página actual.</li>
+                        <li><strong>Botón "Atrás":</strong> Se mueve al nodo <code>prev</code> y muestra la URL actual (Validando si existe un anterior).</li>
+                        <li><strong>Botón "Adelante":</strong> Se mueve al nodo <code>next</code> y muestra la URL actual (Validando si existe un siguiente).</li>
+                        <li><strong>Mostrar Historial:</strong> Muestra la ruta completa recorrida.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Diapositiva 16: Conclusión -->
+            <section>
+                <h2>Conclusiones</h2>
+                <table class="table-custom" style="font-size: 0.6em;">
+                    <tr>
+                        <th>Tipo de Lista</th>
+                        <th>Recorrido</th>
+                        <th>Acceso a Extremos</th>
+                        <th>Aplicación Ideal</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Simple</strong></td>
+                        <td>Adelante</td>
+                        <td>O(1) Inicio, O(n) Fin</td>
+                        <td>Pilas, implementaciones básicas.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Doble</strong></td>
+                        <td>Bidireccional</td>
+                        <td>O(1) Inicio y Fin</td>
+                        <td>Historiales (Atrás/Adelante).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Circular Simple</strong></td>
+                        <td>Continuo Adelante</td>
+                        <td>O(1) Fin</td>
+                        <td>Turnos fijos de un solo sentido.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Circular Doble</strong></td>
+                        <td>Continuo Bidireccional</td>
+                        <td>O(1) Inicio y Fin</td>
+                        <td>Carruseles, Playlists cíclicos.</td>
+                    </tr>
+                </table>
+                <h3 style="margin-top: 30px; font-size: 1.2em;">¡Gracias!</h3>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'slide', 
+            width: 1024,
+            height: 768,
+            margin: 0.04
+        });
+        hljs.highlightAll();
+    </script>
+</body>
+</html>

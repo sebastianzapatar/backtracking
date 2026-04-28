@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilas y Colas</title>
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
+    
+    <!-- Highlight.js for code syntax -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+
+    <style>
+        :root {
+            --eia-dark: #024B57; 
+            --eia-light-blue: #15B0C5;  
+            --eia-bg: #F8F9FA;
+        }
+        .reveal .slide-background { background-color: var(--eia-bg); }
+        .reveal h1, .reveal h2, .reveal h3 {
+            color: var(--eia-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-transform: none;
+            font-weight: bold;
+        }
+        .reveal h1 { font-size: 2.2em; }
+        .reveal h2 { font-size: 1.6em; }
+        .reveal p, .reveal li {
+            color: #333;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        .highlight-text { color: var(--eia-light-blue); font-weight: bold; }
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.6em;
+            line-height: 1.3;
+        }
+        .table-custom th {
+            background-color: var(--eia-dark);
+            color: white;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .table-custom td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .reveal::after {
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 10px;
+            background: linear-gradient(to right, var(--eia-dark) 50%, var(--eia-light-blue) 50%); z-index: 1000;
+        }
+        .nav-menu { position: absolute; top: 20px; left: 20px; z-index: 1000; }
+        .nav-btn {
+            background: var(--eia-light-blue); color: white; padding: 10px 15px; text-decoration: none;
+            border-radius: 5px; font-family: sans-serif; font-size: 14px; font-weight: bold;
+        }
+        /* Gráficas */
+        .stack-container { display: flex; justify-content: center; gap: 80px; margin-top: 30px; }
+        .stack-box { border: 3px solid var(--eia-dark); border-top: none; width: 120px; padding: 10px; border-radius: 0 0 10px 10px; position: relative; }
+        .stack-item { background: #ddd; margin-bottom: 5px; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; }
+        .stack-item.top { background: var(--eia-light-blue); color: white; }
+        
+        .queue-container { display: flex; align-items: center; justify-content: center; margin-top: 30px; }
+        .queue-box { display: flex; border: 3px solid var(--eia-dark); border-left: none; border-right: none; padding: 10px; gap: 10px; }
+        .queue-item { background: #ddd; padding: 15px; border-radius: 5px; font-weight: bold; text-align: center; }
+        .queue-item.front { background: var(--eia-light-blue); color: white; }
+        .queue-item.rear { background: var(--eia-dark); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-menu">
+        <a href="index.html" class="nav-btn">⬅️ Volver a Listas</a>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Diapositiva 1: Título -->
+            <section>
+                <img src="./images.png" alt="Universidad EIA" style="max-width: 400px; margin-bottom: 30px; border: none; box-shadow: none; background: transparent;">
+                <h1>Pilas y Colas</h1>
+                <h2>Estructuras Lineales Básicas</h2>
+                <p style="margin-top: 30px;"><strong>LIFO y FIFO</strong></p>
+                <p>Presentación Educativa</p>
+            </section>
+
+            <!-- ======================= SECCIÓN PILAS ======================= -->
+            <section>
+                <h2>¿Qué es una Pila? <span class="highlight-text">(Stack)</span></h2>
+                <p>Es una estructura de datos que sigue el principio <strong>LIFO (Last In, First Out)</strong>: El último elemento en entrar es el primero en salir.</p>
+                
+                <div class="stack-container">
+                    <div>
+                        <h4 style="font-size: 0.9em; margin-bottom: 30px;">1. Push (Apilar)</h4>
+                        <div style="color:var(--eia-dark); font-size: 2em; text-align: center; margin-bottom: 5px;">⬇️</div>
+                        <div class="stack-box">
+                            <div class="stack-item top">30 (Tope)</div>
+                            <div class="stack-item">20</div>
+                            <div class="stack-item">10</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.9em; margin-bottom: 30px;">2. Pop (Desapilar)</h4>
+                        <div style="color:var(--eia-light-blue); font-size: 2em; text-align: center; margin-bottom: 5px;">⬆️</div>
+                        <div class="stack-box">
+                            <!-- El tope ya salió -->
+                            <div class="stack-item top">20 (Nuevo Tope)</div>
+                            <div class="stack-item">10</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Construcción desde Cero -->
+            <section>
+                <h2>Cómo construir Pilas y Colas desde Cero</h2>
+                <p style="font-size: 0.8em; text-align: left;">Independiente del lenguaje, las Pilas y Colas son <strong>conceptos lógicos</strong> que se construyen sobre estructuras físicas:</p>
+                
+                <div style="display: flex; gap: 20px; font-size: 0.75em; text-align: left; margin-top: 20px;">
+                    <div style="flex: 1; background: white; padding: 15px; border-radius: 8px; border: 2px solid var(--eia-dark);">
+                        <h4 style="color: var(--eia-light-blue);">1. Usando Arreglos (Arrays)</h4>
+                        <p>Se usa un arreglo estático de tamaño <code>N</code> y una variable entera (ej: <code>tope</code> o <code>frente</code>).</p>
+                        <ul>
+                            <li><strong>Pro:</strong> Muy rápido y directo en memoria.</li>
+                            <li><strong>Contra:</strong> Tamaño fijo (puede llenarse y causar desbordamiento).</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1; background: white; padding: 15px; border-radius: 8px; border: 2px solid var(--eia-dark);">
+                        <h4 style="color: var(--eia-light-blue);">2. Usando Nodos (Listas Ligadas)</h4>
+                        <p>Se crean pequeños objetos (Nodos) enlazados por punteros en tiempo de ejecución.</p>
+                        <ul>
+                            <li><strong>Pro:</strong> Tamaño dinámico infinito (limitado por RAM).</li>
+                            <li><strong>Contra:</strong> Lógica de punteros (riesgo de NullPointer) y mayor overhead de memoria.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pilas: Cuándo Usarlas -->
+            <section>
+                <h2>Pilas: ¿Por qué y Cuándo usarlas?</h2>
+                <table class="table-custom" style="font-size: 0.65em;">
+                    <tr>
+                        <th style="width: 50%;">¿Cuándo usarlas? (Industria)</th>
+                        <th>Ventajas y Desventajas</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ul>
+                                <li><strong>Llamadas a Funciones:</strong> El <em class="highlight-text">Call Stack</em> de la CPU.</li>
+                                <li><strong>Navegadores:</strong> Botón "Atrás".</li>
+                                <li><strong>Compiladores:</strong> Verificación de sintaxis y evaluación de expresiones.</li>
+                                <li><strong>Software:</strong> Funcionalidad de Deshacer (Ctrl+Z).</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong style="color: green;">✅ Ventajas:</strong><br>
+                            - Inserción y eliminación súper rápidas en O(1).<br>
+                            - Evita la fragmentación de datos cronológicos.<br><br>
+                            <strong style="color: red;">❌ Desventajas:</strong><br>
+                            - Acceso restringido: No puedes ver ni sacar el elemento del fondo sin vaciar todo lo de arriba.
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Errores de Código -->
+            <section>
+                <h2 style="font-size: 1.4em;">Errores de Código Más Comunes (Pilas/Colas)</h2>
+                <div style="font-size: 0.7em; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background: white; padding: 15px; border-left: 5px solid #c90000; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+                        <strong style="color: #c90000;">1. NullPointerException</strong><br>
+                        Ocurre al implementar con Nodos, si olvidas validar que <code>cabeza == null</code> y tratas de hacer <code>cabeza.dato</code> al desencolar.
+                    </div>
+                    <div style="background: white; padding: 15px; border-left: 5px solid #c90000; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+                        <strong style="color: #c90000;">2. Perder Referencias (Fuga)</strong><br>
+                        Al hacer Pop/Dequeue, si no mueves el puntero correctamente (ej. <code>tope = tope.siguiente</code>), los elementos jamás se borrarán.
+                    </div>
+                    <div style="background: white; padding: 15px; border-left: 5px solid #c90000; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+                        <strong style="color: #c90000;">3. Error Conceptual: Stack Underflow</strong><br>
+                        Llamar al método <code>pop()</code> o <code>desencolar()</code> cuando la estructura ya está vacía. <em>Siempre hay que preguntar <code>estaVacia()</code>.</em>
+                    </div>
+                    <div style="background: white; padding: 15px; border-left: 5px solid #c90000; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+                        <strong style="color: #c90000;">4. Error Conceptual: Stack Overflow</strong><br>
+                        Al implementar con Arreglos Fijos, si intentas hacer <code>push()</code> a un arreglo que ya llenó todos sus espacios (Límite).
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reto Pilas -->
+            <section>
+                <h2>👨‍💻 Reto de Clase (Pila)</h2>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; border: 2px solid var(--eia-dark); box-shadow: 3px 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: var(--eia-light-blue);">El Validador de Paréntesis</h3>
+                    <p style="font-size: 0.8em; text-align: justify; margin-bottom: 10px;">
+                        Diseñen un algoritmo usando una <strong>Pila</strong> que reciba una cadena de texto y determine si los signos de agrupación <code>( ) [ ] { }</code> están correctamente balanceados.
+                    </p>
+                    <div style="font-size: 0.7em; text-align: left; background: var(--eia-bg); padding: 10px; border-radius: 5px;">
+                        <strong>Entrada 1:</strong> <code>"{ [ ( ) ] }"</code> ➡️ <em>Correcto</em><br>
+                        <strong>Entrada 2:</strong> <code>"[ ( { } )"</code> ➡️ <em>Incorrecto</em><br>
+                        <strong>Pista:</strong> Si abres un signo, haz <code>push()</code>. Si cierras, haz <code>pop()</code> y compara.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================= SECCIÓN COLAS ======================= -->
+            <section>
+                <h2>¿Qué es una Cola? <span class="highlight-text">(Queue)</span></h2>
+                <p>Estructura <strong>FIFO (First In, First Out)</strong>: El primero en entrar es el primero en salir.</p>
+                
+                <div class="queue-container">
+                    <div style="font-size: 1.5em; margin-right: 15px; color: var(--eia-dark);"><strong>IN ➡️</strong><br><span style="font-size: 0.5em">(Enqueue)</span></div>
+                    
+                    <div class="queue-box">
+                        <div class="queue-item rear">40 (Final)</div>
+                        <div class="queue-item">30</div>
+                        <div class="queue-item">20</div>
+                        <div class="queue-item front">10 (Frente)</div>
+                    </div>
+                    
+                    <div style="font-size: 1.5em; margin-left: 15px; color: var(--eia-light-blue);"><strong>➡️ OUT</strong><br><span style="font-size: 0.5em">(Dequeue)</span></div>
+                </div>
+            </section>
+
+            <!-- Colas Usos -->
+            <section>
+                <h2>Colas: Ejemplos en la Industria</h2>
+                <ul style="font-size: 0.85em; line-height: 1.6;">
+                    <li><strong class="highlight-text">Sistemas Operativos:</strong> Fila de impresión. Los documentos se imprimen en estricto orden de llegada.</li>
+                    <li><strong class="highlight-text">Servidores Web:</strong> Manejo de peticiones. Cuando el servidor está lleno, las nuevas visitas se encolan para ser atendidas equitativamente.</li>
+                    <li><strong class="highlight-text">Algoritmos (Grafos):</strong> Búsqueda en Anchura (BFS) usa colas para explorar niveles, como en el ruteo de GPS.</li>
+                </ul>
+            </section>
+
+            <!-- Tipos de colas -->
+            <section>
+                <h2>Variantes (Tipos de Colas)</h2>
+                <p style="font-size: 0.75em;">La cola estándar es Lineal, pero existen variaciones que resuelven problemas específicos <br><em>(Nota: no las profundizaremos en el curso, pero es clave conocerlas)</em>:</p>
+                <div style="font-size: 0.7em; text-align: left; margin-top: 20px;">
+                    <ul>
+                        <li style="margin-bottom: 10px;"><strong class="highlight-text">Cola Circular:</strong> Conecta el último índice del arreglo con el primero, reciclando la memoria usada. Ideal para buffers circulares (ej. Streaming).</li>
+                        <li style="margin-bottom: 10px;"><strong class="highlight-text">Cola de Prioridad (Priority Queue):</strong> No atiende por orden de llegada, sino por la "importancia" o jerarquía del dato (ej. atención de urgencias médicas).</li>
+                        <li style="margin-bottom: 10px;"><strong class="highlight-text">Bicola (Deque):</strong> Permite insertar y borrar en AMBOS extremos (frente y final). Es un híbrido avanzado entre Pila y Cola.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Reto Cola -->
+            <section>
+                <h2>👨‍💻 Reto de Clase (Cola)</h2>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; border: 2px solid var(--eia-dark); box-shadow: 3px 3px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: var(--eia-light-blue);">El Call Center</h3>
+                    <p style="font-size: 0.8em; text-align: justify; margin-bottom: 10px;">
+                        Implementa una <strong>Cola genérica</strong> en Java para el sistema telefónico de la Universidad:
+                    </p>
+                    <ul style="font-size: 0.75em; text-align: left;">
+                        <li><strong>Recibir Llamada:</strong> Llega "Estudiante A" (Enqueue).</li>
+                        <li><strong>Revisar Fila:</strong> El operador mira quién es el próximo (Peek) sin contestar.</li>
+                        <li><strong>Contestar Llamada:</strong> Saca al estudiante (Dequeue) y lo atiende. Validar si no hay más turnos en espera.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Comparación Definitiva -->
+            <section>
+                <h2 style="font-size: 1.4em;">¿Pila vs Cola vs Lista Ligada?</h2>
+                <p style="font-size: 0.75em;">La pregunta clave: ¿Cómo entran y salen los datos?</p>
+                <table class="table-custom" style="font-size: 0.6em; margin-top: 20px;">
+                    <tr>
+                        <th style="width: 25%;">Estructura</th>
+                        <th>Regla de Acceso</th>
+                        <th>Cuándo debes elegirla</th>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--eia-dark);">PILA (Stack)</strong></td>
+                        <td>Extremo único (Tope). LIFO.</td>
+                        <td>Si necesitas regresar a estados anteriores o revertir cosas. <strong>(Ej. Deshacer, Volver).</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--eia-dark);">COLA (Queue)</strong></td>
+                        <td>Dos extremos (Final e Inicio). FIFO.</td>
+                        <td>Si necesitas procesar cosas equitativamente y en estricto orden de llegada. <strong>(Ej. Filas, Turnos).</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--eia-dark);">LISTA LIGADA (List)</strong></td>
+                        <td>Cualquier posición O(n).</td>
+                        <td>Si necesitas incrustar, borrar o leer datos de forma aleatoria en el medio del conjunto. <strong>(Flexibilidad total).</strong></td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Java Nativo -->
+            <section>
+                <h2>Implementaciones Nativas (Java)</h2>
+                <table class="table-custom" style="font-size: 0.65em;">
+                    <tr>
+                        <th>Estructura Teórica</th>
+                        <th>Clases o Interfaces Nativas de Java</th>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--eia-dark); font-weight: bold;">Pila (Stack)</td>
+                        <td><code>java.util.Stack&lt;E&gt;</code> (Obsoleta).<br>Hoy se usa <code>java.util.ArrayDeque&lt;E&gt;</code> (Más rápida).</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--eia-dark); font-weight: bold;">Cola (Queue)</td>
+                        <td><code>java.util.Queue&lt;E&gt;</code> (Interfaz genérica).<br>Implementada normalmente con <code>java.util.LinkedList&lt;E&gt;</code>.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--eia-dark); font-weight: bold;">Doble Cola (Deque)</td>
+                        <td><code>java.util.Deque&lt;E&gt;</code> (Double Ended Queue).<br>La base moderna para pilas y colas de alto rendimiento.</td>
+                    </tr>
+                </table>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true, progress: true, center: true, hash: true,
+            transition: 'slide', width: 1024, height: 768, margin: 0.04
+        });
+    </script>
+</body>
+</html>
