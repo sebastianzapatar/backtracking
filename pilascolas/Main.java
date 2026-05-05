@@ -2,28 +2,46 @@ package pilascolas;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== PRUEBA DE PILA (LIFO) ===");
-        Pila<String> historial = new Pila<>();
-        
-        historial.push("Página 1: Inicio");
-        historial.push("Página 2: Buscar Producto");
-        historial.push("Página 3: Confirmar Compra");
-        
-        System.out.println("Tope actual: " + historial.peek()); // Página 3
-        System.out.println("Presionando 'Atrás': " + historial.pop()); // Saca Página 3
-        System.out.println("Página actual: " + historial.peek()); // Página 2
-        System.out.println("Páginas en historial: " + historial.getTamano());
+        System.out.println("=== PRUEBA DE PILA (Construida desde cero con Nodos) ===");
+        Pila<String> historialNodos = new Pila<>();
+        historialNodos.push("Página 1: Inicio");
+        historialNodos.push("Página 2: Buscar Producto");
+        historialNodos.push("Página 3: Confirmar Compra");
+        System.out.println("Tope actual: " + historialNodos.peek());
+        System.out.println("Presionando 'Atrás': " + historialNodos.pop());
+        System.out.println("Página actual: " + historialNodos.peek());
+        System.out.println("Páginas en historial: " + historialNodos.getTamano());
 
-        System.out.println("\n=== PRUEBA DE COLA (FIFO) ===");
-        Cola<String> impresion = new Cola<>();
-        
-        impresion.encolar("Documento_Tesis.pdf");
-        impresion.encolar("Foto_Familiar.png");
-        impresion.encolar("Factura_Mes.docx");
-        
-        System.out.println("Próximo a imprimir: " + impresion.verFrente()); // Tesis
-        System.out.println("Imprimiendo: " + impresion.desencolar());       // Saca Tesis
-        System.out.println("Próximo a imprimir: " + impresion.verFrente()); // Foto
-        System.out.println("Documentos en espera: " + impresion.getTamano());
+        System.out.println("\n=== PRUEBA DE PILA (Usando la API de Java) ===");
+        PilaAPI<String> historialAPI = new PilaAPI<>();
+        historialAPI.push("Página 1: Inicio");
+        historialAPI.push("Página 2: Buscar Producto");
+        historialAPI.push("Página 3: Confirmar Compra");
+        System.out.println("Tope actual: " + historialAPI.peek());
+        System.out.println("Presionando 'Atrás': " + historialAPI.pop());
+        System.out.println("Página actual: " + historialAPI.peek());
+        System.out.println("Páginas en historial: " + historialAPI.getTamano());
+
+        System.out.println("\n----------------------------------------------------\n");
+
+        System.out.println("=== PRUEBA DE COLA (Construida desde cero con Nodos) ===");
+        Cola<String> impresionNodos = new Cola<>();
+        impresionNodos.encolar("Documento_Tesis.pdf");
+        impresionNodos.encolar("Foto_Familiar.png");
+        impresionNodos.encolar("Factura_Mes.docx");
+        System.out.println("Próximo a imprimir: " + impresionNodos.verFrente());
+        System.out.println("Imprimiendo: " + impresionNodos.desencolar());
+        System.out.println("Próximo a imprimir: " + impresionNodos.verFrente());
+        System.out.println("Documentos en espera: " + impresionNodos.getTamano());
+
+        System.out.println("\n=== PRUEBA DE COLA (Usando la API de Java) ===");
+        ColaAPI<String> impresionAPI = new ColaAPI<>();
+        impresionAPI.encolar("Documento_Tesis.pdf");
+        impresionAPI.encolar("Foto_Familiar.png");
+        impresionAPI.encolar("Factura_Mes.docx");
+        System.out.println("Próximo a imprimir: " + impresionAPI.verFrente());
+        System.out.println("Imprimiendo: " + impresionAPI.desencolar());
+        System.out.println("Próximo a imprimir: " + impresionAPI.verFrente());
+        System.out.println("Documentos en espera: " + impresionAPI.getTamano());
     }
 }
