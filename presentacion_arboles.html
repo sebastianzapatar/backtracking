@@ -443,7 +443,36 @@
 }</code></pre>
             </section>
 
-            <!-- Diapositiva 11: Recorridos Visuales -->
+            <!-- Diapositiva 11: Código Eliminación -->
+            <section>
+                <h2>Código: Eliminar Nodo</h2>
+                <p>Borrar un nodo requiere reorganizar el árbol manejando 3 casos:</p>
+                <div style="display: flex; gap: 15px; font-size: 0.7em; text-align: left; margin-bottom: 10px;">
+                    <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--eia-dark);"><strong>1. Es Hoja:</strong> Se borra (return null).</div>
+                    <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--eia-dark);"><strong>2. Tiene 1 Hijo:</strong> El hijo lo reemplaza.</div>
+                    <div style="flex: 1; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--eia-dark);"><strong>3. Tiene 2 Hijos:</strong> Se busca el sucesor (menor de la rama derecha) para tomar su lugar.</div>
+                </div>
+                <pre class="code-wrapper" style="max-height: 400px;"><code class="language-java">public Nodo eliminarRecursivo(Nodo actual, int valor) {
+    if (actual == null) return null;
+
+    if (valor < actual.dato) {
+        actual.izquierdo = eliminarRecursivo(actual.izquierdo, valor);
+    } else if (valor > actual.dato) {
+        actual.derecho = eliminarRecursivo(actual.derecho, valor);
+    } else { // Nodo encontrado
+        // Casos 1 y 2
+        if (actual.izquierdo == null) return actual.derecho;
+        if (actual.derecho == null) return actual.izquierdo;
+
+        // Caso 3: Dos hijos (buscamos el sucesor inorden)
+        actual.dato = encontrarMinimo(actual.derecho);
+        actual.derecho = eliminarRecursivo(actual.derecho, actual.dato);
+    }
+    return actual;
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 12: Recorridos Visuales -->
             <section>
                 <h2>Paso a Paso: Recorridos (Traversals)</h2>
                 <p style="font-size: 0.8em;">Formas de visitar los nodos en Búsqueda en Profundidad (DFS).</p>

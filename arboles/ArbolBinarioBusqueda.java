@@ -45,7 +45,8 @@ public class ArbolBinarioBusqueda<T extends Comparable<T>> {
     public void insertar(T valor) {
         // Llamamos al método recursivo y el resultado lo asignamos a la raíz.
         // Si la raíz era nula, ahora apuntará al nuevo nodo.
-        this.raiz =  
+        this.raiz = insertarRecursivo(this.raiz, valor);
+    }
 
     /**
      * Método privado recursivo que busca la posición correcta según las reglas del árbol
@@ -165,6 +166,62 @@ public class ArbolBinarioBusqueda<T extends Comparable<T>> {
         }
     }
 
+    /**
+     * Método público para eliminar un valor del árbol.
+     * @param valor El valor a eliminar.
+     */
+    public void eliminar(T valor) {
+        this.raiz = eliminarRecursivo(this.raiz, valor);
+    }
+
+    /**
+     * Método privado recursivo para eliminar un nodo y reorganizar el árbol.
+     * Maneja los 3 casos: nodo sin hijos, con 1 hijo, y con 2 hijos.
+     */
+    private Nodo<T> eliminarRecursivo(Nodo<T> nodoActual, T valor) {
+        if (nodoActual == null) {
+            return null; // El valor no se encontró
+        }
+
+        // 1. Buscamos el nodo a eliminar navegando por el árbol
+        if (valor.compareTo(nodoActual.valor) < 0) {
+            nodoActual.izquierdo = eliminarRecursivo(nodoActual.izquierdo, valor);
+        } else if (valor.compareTo(nodoActual.valor) > 0) {
+            nodoActual.derecho = eliminarRecursivo(nodoActual.derecho, valor);
+        } else {
+            // 2. Encontramos el nodo a eliminar (valor coincide)
+
+            // Caso A y B: Nodo con un solo hijo o sin hijos (hoja)
+            if (nodoActual.izquierdo == null) {
+                return nodoActual.derecho; // Retorna el hijo derecho (o null si es hoja)
+            } else if (nodoActual.derecho == null) {
+                return nodoActual.izquierdo; // Retorna el hijo izquierdo
+            }
+
+            // Caso C: Nodo con dos hijos
+            // Buscamos el sucesor inorden (el menor valor en el subárbol derecho)
+            nodoActual.valor = encontrarMinimo(nodoActual.derecho);
+            
+            // Eliminamos el nodo sucesor que acabamos de copiar
+            nodoActual.derecho = eliminarRecursivo(nodoActual.derecho, nodoActual.valor);
+        }
+
+        return nodoActual; // Retornamos el nodo actualizado
+    }
+
+    /**
+     * Método auxiliar para encontrar el valor mínimo de un subárbol.
+     * Útil cuando se necesita el sucesor para eliminar un nodo con dos hijos.
+     */
+    private T encontrarMinimo(Nodo<T> nodo) {
+        T min = nodo.valor;
+        while (nodo.izquierdo != null) {
+            min = nodo.izquierdo.valor;
+            nodo = nodo.izquierdo;
+        }
+        return min;
+    }
+
     // =========================================================================
     // MÉTODO MAIN PARA PROBAR NUESTRO ÁRBOL BINARIO DE BÚSQUEDA
     // =========================================================================
@@ -203,5 +260,19 @@ public class ArbolBinarioBusqueda<T extends Comparable<T>> {
         // El recorrido postorden termina en la raíz
         // Salida esperada: 20 40 30 60 80 70 50
         arbol.recorridoPostorden(); 
+
+        System.out.println("\n--- Eliminando nodos (Reorganización del Árbol) ---");
+        
+        System.out.println("Eliminamos el 20 (Nodo hoja):");
+        arbol.eliminar(20);
+        arbol.recorridoInorden(); // 30 40 50 60 70 80
+
+        System.out.println("Eliminamos el 30 (Nodo con un hijo o reorganización):");
+        arbol.eliminar(30);
+        arbol.recorridoInorden(); // 40 50 60 70 80
+
+        System.out.println("Eliminamos el 50 (Nodo RAÍZ con dos hijos):");
+        arbol.eliminar(50);
+        arbol.recorridoInorden(); // 40 60 70 80
     }
 }
