@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árboles AVL - Estructuras de Datos</title>
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css" id="theme">
+    
+    <!-- Highlight.js for code syntax -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* Paleta de colores Universidad EIA */
+        :root {
+            --eia-dark: #024B57; 
+            --eia-light-blue: #15B0C5;  
+            --eia-bg: #F8F9FA;
+            --eia-accent: #E84C3D; 
+            --eia-success: #27ae60;
+        }
+
+        .reveal .slide-background {
+            background-color: var(--eia-bg);
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 {
+            color: var(--eia-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-transform: none;
+            font-weight: bold;
+        }
+
+        .reveal h1 { font-size: 2.2em; }
+        .reveal h2 { font-size: 1.6em; margin-bottom: 20px; }
+        .reveal p, .reveal li {
+            color: #333;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .highlight-text { color: var(--eia-light-blue); font-weight: bold; }
+        .highlight-red { color: var(--eia-accent); font-weight: bold; }
+        .highlight-green { color: var(--eia-success); font-weight: bold; }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7em;
+            margin-top: 20px;
+        }
+        .table-custom th {
+            background-color: var(--eia-dark);
+            color: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .table-custom td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .svg-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .box-info {
+            background-color: rgba(21, 176, 197, 0.1); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border-left: 5px solid var(--eia-dark);
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.8em;
+        }
+
+        .reveal::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, var(--eia-dark) 50%, #E84C3D 50%);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
+        <a href="index.html" style="background: var(--eia-light-blue); color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-family: sans-serif; font-size: 14px; font-weight: bold;">⬅️ Volver a Inicio</a>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Diapositiva 1: Título -->
+            <section>
+                <h1>Árboles AVL</h1>
+                <h2>Auto-Balanceo y Eficiencia</h2>
+                <p style="margin-top: 30px;"><strong>Estructuras de Datos Avanzadas</strong></p>
+                <p>Universidad EIA</p>
+            </section>
+
+            <!-- Diapositiva 2: El Problema del ABB Normal -->
+            <section>
+                <h2>El Problema de los ABB</h2>
+                <p>Los Árboles de Búsqueda Binaria (ABB) <strong class="highlight-red">NO garantizan</strong> un acceso rápido en todos los casos.</p>
+                <ul style="font-size: 0.75em; text-align: left;">
+                    <li>Inserciones de datos ya ordenados crean árboles <strong>desequilibrados</strong>.</li>
+                    <li>En el peor caso, la búsqueda pasa de <code>O(log n)</code> a <code>O(n)</code> (lineal), comportándose igual que una lista enlazada defectuosa.</li>
+                </ul>
+                
+                <div class="svg-container" style="margin-top: 30px;">
+                    <div style="text-align: left; width: 100%;">
+                        <p style="font-size: 0.7em; margin-bottom: 10px;"><strong>Ejemplo:</strong> Inserta en un ABB los números: <strong>7, 5, 3, 1</strong></p>
+                        <svg width="600" height="180" viewBox="0 0 600 180">
+                            <!-- Conexiones -->
+                            <line x1="100" y1="30" x2="180" y2="70" stroke="#E84C3D" stroke-width="3"/>
+                            <line x1="180" y1="70" x2="260" y2="110" stroke="#E84C3D" stroke-width="3"/>
+                            <line x1="260" y1="110" x2="340" y2="150" stroke="#E84C3D" stroke-width="3"/>
+                            
+                            <!-- Nodos -->
+                            <circle cx="100" cy="30" r="22" fill="#024B57"/> <text x="100" y="30" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">7</text>
+                            <circle cx="180" cy="70" r="22" fill="#024B57"/> <text x="180" y="70" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">5</text>
+                            <circle cx="260" cy="110" r="22" fill="#024B57"/> <text x="260" y="110" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                            <circle cx="340" cy="150" r="22" fill="#024B57"/> <text x="340" y="150" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                            
+                            <text x="450" y="90" fill="#E84C3D" font-size="16" font-weight="bold">¡Pésimo rendimiento O(n)!</text>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 3: ¿Qué es un AVL? -->
+            <section>
+                <h2>¿Qué es un Árbol AVL?</h2>
+                <p>Es un tipo especial de Árbol Binario de Búsqueda que se <strong>auto-balancea</strong>.</p>
+                <div class="box-info">
+                    <ul>
+                        <li>Garantiza que la búsqueda, inserción y eliminación siempre tomen un tiempo <strong>O(log n)</strong>.</li>
+                        <li>Fue inventado por <em>Adelson-Velsky y Landis</em> (de ahí sus siglas AVL).</li>
+                        <li>Utiliza una propiedad matemática estricta basada en la <strong>Altura</strong> para aplicar "rotaciones" automáticas si detecta un desequilibrio.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Diapositiva 4: Altura y Balance -->
+            <section>
+                <h2>Altura y Factor de Equilibrio</h2>
+                <p style="font-size: 0.8em; text-align: left;">Para que el árbol se auto-gestione, cada nodo rastrea su <strong>Altura</strong>.</p>
+                
+                <div style="display: flex; gap: 20px; align-items: stretch; margin-top: 15px;">
+                    <div style="flex: 1; background: white; padding: 15px; border-radius: 8px; border: 2px solid var(--eia-dark);">
+                        <h4 style="color: var(--eia-dark); font-size: 1.1em; margin-bottom: 10px;">Fórmula del Equilibrio</h4>
+                        <p style="font-size: 0.8em; font-family: monospace; text-align: center; background: #eee; padding: 10px; border-radius: 5px;">
+                            Balance = Altura(Izq) - Altura(Der)
+                        </p>
+                        <ul style="font-size: 0.7em; margin-top: 15px;">
+                            <li><strong class="highlight-green">Permitidos:</strong> -1, 0, +1. (El nodo está balanceado).</li>
+                            <li><strong class="highlight-red">Críticos:</strong> +2 o -2. (El nodo se desbalanceó y exige una rotación inmediata).</li>
+                        </ul>
+                    </div>
+                    <div class="svg-container" style="flex: 1; margin: 0;">
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <line x1="100" y1="30" x2="50" y2="100" stroke="#024B57" stroke-width="2"/>
+                            <line x1="100" y1="30" x2="150" y2="100" stroke="#024B57" stroke-width="2"/>
+                            <line x1="150" y1="100" x2="120" y2="170" stroke="#024B57" stroke-width="2"/>
+                            <line x1="150" y1="100" x2="180" y2="170" stroke="#024B57" stroke-width="2"/>
+                            
+                            <circle cx="100" cy="30" r="22" fill="#024B57"/> <text x="100" y="30" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">8</text>
+                            <!-- Etiqueta balance -->
+                            <text x="130" y="15" fill="#E84C3D" font-size="14" font-weight="bold">Bal: -1</text>
+                            
+                            <circle cx="50" cy="100" r="22" fill="#15B0C5"/> <text x="50" y="100" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">4</text>
+                            <text x="20" y="85" fill="var(--eia-success)" font-size="14" font-weight="bold">Bal: 0</text>
+                            
+                            <circle cx="150" cy="100" r="22" fill="#15B0C5"/> <text x="150" y="100" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">12</text>
+                            <text x="180" y="85" fill="var(--eia-success)" font-size="14" font-weight="bold">Bal: 0</text>
+                            
+                            <circle cx="120" cy="170" r="18" fill="white" stroke="#E84C3D" stroke-width="2"/> <text x="120" y="170" dominant-baseline="central" fill="#E84C3D" text-anchor="middle" font-weight="bold">10</text>
+                            <circle cx="180" cy="170" r="18" fill="white" stroke="#E84C3D" stroke-width="2"/> <text x="180" y="170" dominant-baseline="central" fill="#E84C3D" text-anchor="middle" font-weight="bold">14</text>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 5: Comparación Visual -->
+            <section>
+                <h2 style="font-size: 1.3em;">Comparación: Árbol Balanceado vs Desbalanceado</h2>
+                <div style="display: flex; gap: 10px; align-items: stretch; margin-top: 10px;">
+                    <!-- AVL -->
+                    <div class="svg-container" style="flex: 1; flex-direction: column; padding: 10px;">
+                        <h3 style="color: var(--eia-success); font-size: 1em;">AVL (Balanceado)</h3>
+                        <svg width="250" height="220" viewBox="0 0 250 220">
+                            <!-- Nivel 1 a 2 -->
+                            <line x1="125" y1="30" x2="60" y2="90" stroke="#024B57" stroke-width="2"/>
+                            <line x1="125" y1="30" x2="190" y2="90" stroke="#024B57" stroke-width="2"/>
+                            <!-- Nivel 2 a 3 (Izq) -->
+                            <line x1="60" y1="90" x2="30" y2="150" stroke="#024B57" stroke-width="2"/>
+                            <line x1="60" y1="90" x2="90" y2="150" stroke="#024B57" stroke-width="2"/>
+                            <!-- Nivel 3 a 4 (Der de 4) -->
+                            <line x1="90" y1="150" x2="90" y2="200" stroke="#024B57" stroke-width="2"/>
+                            <!-- Nivel 2 a 3 (Der) -->
+                            <line x1="190" y1="90" x2="160" y2="150" stroke="#024B57" stroke-width="2"/>
+                            
+                            <!-- Nodos -->
+                            <circle cx="125" cy="30" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="125" y="30" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">6</text>
+                            <text x="145" y="15" fill="#E84C3D" font-size="10" font-weight="bold">-1</text>
+                            
+                            <circle cx="60" cy="90" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="60" y="90" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">2</text>
+                            <text x="80" y="75" fill="#E84C3D" font-size="10" font-weight="bold">+1</text>
+                            
+                            <circle cx="190" cy="90" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="190" y="90" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">8</text>
+                            <text x="210" y="75" fill="#E84C3D" font-size="10" font-weight="bold">-1</text>
+                            
+                            <circle cx="30" cy="150" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="30" y="150" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">1</text>
+                            <text x="50" y="140" fill="#E84C3D" font-size="10" font-weight="bold">0</text>
+                            
+                            <circle cx="90" cy="150" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="90" y="150" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">4</text>
+                            <text x="110" y="140" fill="#E84C3D" font-size="10" font-weight="bold">-1</text>
+
+                            <circle cx="160" cy="150" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="160" y="150" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">7</text>
+                            <text x="180" y="140" fill="#E84C3D" font-size="10" font-weight="bold">0</text>
+                            
+                            <circle cx="90" cy="200" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="90" y="200" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">3</text>
+                            <text x="110" y="195" fill="#E84C3D" font-size="10" font-weight="bold">0</text>
+                        </svg>
+                    </div>
+
+                    <!-- No AVL -->
+                    <div class="svg-container" style="flex: 1; flex-direction: column; padding: 10px;">
+                        <h3 style="color: var(--eia-accent); font-size: 1em;">No AVL (ABB Normal)</h3>
+                        <svg width="250" height="220" viewBox="0 0 250 220">
+                            <line x1="150" y1="30" x2="90" y2="80" stroke="#024B57" stroke-width="2"/>
+                            <line x1="150" y1="30" x2="210" y2="80" stroke="#024B57" stroke-width="2"/>
+                            
+                            <line x1="90" y1="80" x2="50" y2="130" stroke="#024B57" stroke-width="2"/>
+                            <line x1="90" y1="80" x2="130" y2="130" stroke="#024B57" stroke-width="2"/>
+                            
+                            <line x1="130" y1="130" x2="90" y2="180" stroke="#024B57" stroke-width="2"/>
+                            <line x1="130" y1="130" x2="170" y2="180" stroke="#024B57" stroke-width="2"/>
+
+                            <circle cx="150" cy="30" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="150" y="30" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">6</text>
+                            <circle cx="90" cy="80" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="90" y="80" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">2</text>
+                            <circle cx="210" cy="80" r="18" fill="white" stroke="#024B57" stroke-width="2"/> <text x="210" y="80" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">8</text>
+                            
+                            <circle cx="50" cy="130" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="50" y="130" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">1</text>
+                            <circle cx="130" cy="130" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="130" y="130" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">4</text>
+                            
+                            <circle cx="90" cy="180" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="90" y="180" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">3</text>
+                            <circle cx="170" cy="180" r="16" fill="white" stroke="#024B57" stroke-width="2"/> <text x="170" y="180" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-size="12">5</text>
+                        </svg>
+                        <p style="font-size: 0.6em; margin-top: 5px;">Raíz 6 totalmente desproporcionada.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 6: Proceso de Inserción (Dos Pasos) -->
+            <section>
+                <h2>El Proceso de Inserción</h2>
+                <p style="text-align: left; font-size: 0.8em; margin-bottom: 20px;">El proceso de inserción en un AVL se realiza en <strong class="highlight-text">dos pasos fundamentales</strong>:</p>
+                
+                <div class="box-info" style="margin-bottom: 15px; border-left-color: var(--eia-success);">
+                    <h3 style="font-size: 1.1em; color: var(--eia-success); margin-top: 0;">Paso 1: Inserción Tradicional</h3>
+                    <p style="margin: 0; font-size: 0.9em;">Se realiza la inserción siguiendo el esquema estudiado para los ABB. De esta forma, el nuevo nodo queda colocado como una <strong>hoja</strong> del árbol.</p>
+                </div>
+
+                <div class="box-info" style="border-left-color: var(--eia-accent);">
+                    <h3 style="font-size: 1.1em; color: var(--eia-accent); margin-top: 0;">Paso 2: Backtracking y Rotación</h3>
+                    <p style="margin: 0; font-size: 0.9em;">Se recorre el camino de regreso hacia la raíz (recursión hacia atrás), <strong>actualizando los equilibrios</strong> por el camino.<br><br> 
+                    Si se encuentra un nodo durante este recorrido cuyo equilibrio pase a ser <strong style="color:red">+2 ó -2</strong>, entonces se <strong>ajustan los subárboles (Rotación)</strong>, de tal forma que el árbol se convierta nuevamente en un ABB con equilibrio 0, +1 ó -1 en cada nodo.</p>
+                </div>
+            </section>
+
+            <!-- Diapositiva 7: Las Rotaciones -->
+            <section>
+                <h2>Las 4 Rotaciones de AVL</h2>
+                <p style="font-size: 0.8em;">Dependiendo de cómo se formó el desbalance (el patrón de la inserción), el AVL aplica una u otra rotación de los punteros:</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.7em; text-align: left;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-top: 5px solid var(--eia-dark);">
+                        <strong style="font-size: 1.2em; color: var(--eia-dark);">1. Rotación Derecha (Simple)</strong><br>
+                        Ocurre cuando el desbalance es en línea recta hacia la izquierda (Caso LL: Izquierda-Izquierda).
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-top: 5px solid var(--eia-dark);">
+                        <strong style="font-size: 1.2em; color: var(--eia-dark);">2. Rotación Izquierda (Simple)</strong><br>
+                        Ocurre cuando el desbalance es en línea recta hacia la derecha (Caso RR: Derecha-Derecha).
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-top: 5px solid var(--eia-light-blue);">
+                        <strong style="font-size: 1.2em; color: var(--eia-light-blue);">3. Rotación Izquierda-Derecha (Doble)</strong><br>
+                        Desbalance en forma de Zig-Zag (Caso LR). Primero se rota el hijo a la izquierda, y luego el padre a la derecha.
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-top: 5px solid var(--eia-light-blue);">
+                        <strong style="font-size: 1.2em; color: var(--eia-light-blue);">4. Rotación Derecha-Izquierda (Doble)</strong><br>
+                        Desbalance en Zig-Zag (Caso RL). Primero rota el hijo a la derecha, luego el padre a la izquierda.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 8: Ejemplo Rotación -->
+            <section>
+                <h2>Ejemplo Gráfico de Rotación</h2>
+                <p style="font-size: 0.8em;">Insertamos secuencialmente: <strong class="highlight-text">1, 2, 3</strong></p>
+                
+                <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 30px;">
+                    <!-- Antes (Desbalance) -->
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--eia-accent); font-size: 0.9em;">Desbalance Crítico (-2)</h4>
+                        <svg width="180" height="190" viewBox="0 0 180 190">
+                            <line x1="50" y1="40" x2="100" y2="100" stroke="#024B57" stroke-width="2"/>
+                            <line x1="100" y1="100" x2="150" y2="160" stroke="#024B57" stroke-width="2"/>
+                            
+                            <circle cx="50" cy="40" r="22" fill="#E84C3D"/> <text x="50" y="40" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                            <text x="50" y="10" fill="#E84C3D" font-size="12" font-weight="bold" text-anchor="middle">Bal: -2</text>
+                            
+                            <circle cx="100" cy="100" r="22" fill="#15B0C5"/> <text x="100" y="100" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                            <circle cx="150" cy="160" r="22" fill="white" stroke="#024B57" stroke-width="2"/> <text x="150" y="160" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-weight="bold">3</text>
+                        </svg>
+                    </div>
+
+                    <!-- Flecha -->
+                    <div>
+                        <svg width="60" height="60" viewBox="0 0 60 60">
+                            <text x="30" y="35" dominant-baseline="central" text-anchor="middle" font-size="30" font-weight="bold" fill="var(--eia-dark)">➔</text>
+                            <text x="30" y="10" dominant-baseline="central" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--eia-light-blue)">Rotación</text>
+                            <text x="30" y="55" dominant-baseline="central" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--eia-light-blue)">Izquierda</text>
+                        </svg>
+                    </div>
+
+                    <!-- Después (Balance) -->
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--eia-success); font-size: 0.9em;">Balance Perfecto (0)</h4>
+                        <svg width="200" height="150" viewBox="0 0 200 150">
+                            <line x1="100" y1="30" x2="50" y2="100" stroke="#024B57" stroke-width="2"/>
+                            <line x1="100" y1="30" x2="150" y2="100" stroke="#024B57" stroke-width="2"/>
+                            
+                            <circle cx="100" cy="30" r="22" fill="#024B57"/> <text x="100" y="30" dominant-baseline="central" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                            <text x="100" y="65" fill="var(--eia-success)" font-size="12" font-weight="bold">Bal: 0</text>
+                            
+                            <circle cx="50" cy="100" r="22" fill="white" stroke="#024B57" stroke-width="2"/> <text x="50" y="100" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-weight="bold">1</text>
+                            <circle cx="150" cy="100" r="22" fill="white" stroke="#024B57" stroke-width="2"/> <text x="150" y="100" dominant-baseline="central" fill="#024B57" text-anchor="middle" font-weight="bold">3</text>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 9: Código Inserción AVL -->
+            <section>
+                <h2>Código: Inserción con Balanceo</h2>
+                <p style="font-size: 0.8em;">El método de inserción incluye un <strong class="highlight-text">Paso 2</strong> para recalcular la altura y balancear.</p>
+                
+                <pre class="code-wrapper" style="font-size: 0.45em !important;"><code class="language-java">private NodoAVL&lt;T&gt; insertarRecursivo(NodoAVL&lt;T&gt; nodo, T valor) {
+    // 1. Inserción clásica de ABB
+    if (nodo == null) return new NodoAVL&lt;&gt;(valor);
+    if (valor.compareTo(nodo.dato) &lt; 0) nodo.izquierdo = insertarRecursivo(nodo.izquierdo, valor);
+    else if (valor.compareTo(nodo.dato) &gt; 0) nodo.derecho = insertarRecursivo(nodo.derecho, valor);
+    else return nodo; // No se permiten duplicados
+
+    // 2. Actualizar altura del ancestro actual
+    nodo.altura = 1 + max(obtenerAltura(nodo.izquierdo), obtenerAltura(nodo.derecho));
+
+    // 3. Obtener Factor de Balance
+    int balance = obtenerBalance(nodo);
+
+    // 4. Si el nodo se desbalancea, probamos los 4 casos de Rotación
+    if (balance &gt; 1 &amp;&amp; valor.compareTo(nodo.izquierdo.dato) &lt; 0) // Caso Izquierda-Izquierda
+        return rotacionDerecha(nodo);
+    
+    // ... (Se manejan los casos Derecha-Derecha y los casos Zig-Zag)
+    
+    return nodo;
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 10: Código Rotación -->
+            <section>
+                <h2>Código: Rotación Simple (Derecha)</h2>
+                <p style="font-size: 0.8em;">Así es como se reasignan los punteros en tiempo <strong class="highlight-green">O(1)</strong>.</p>
+                
+                <pre class="code-wrapper" style="font-size: 0.5em !important;"><code class="language-java">private NodoAVL&lt;T&gt; rotacionDerecha(NodoAVL&lt;T&gt; y) {
+    // Definimos los punteros temporales
+    NodoAVL&lt;T&gt; x = y.izquierdo;
+    NodoAVL&lt;T&gt; T2 = x.derecho;
+
+    // Realizamos la rotación (Intercambio)
+    x.derecho = y;
+    y.izquierdo = T2;
+
+    // Actualizamos las alturas (primero el hijo, luego el padre)
+    y.altura = max(obtenerAltura(y.izquierdo), obtenerAltura(y.derecho)) + 1;
+    x.altura = max(obtenerAltura(x.izquierdo), obtenerAltura(x.derecho)) + 1;
+
+    // Devolvemos la nueva raíz de este subárbol
+    return x;
+}</code></pre>
+            </section>
+
+            <!-- Diapositiva 9: Complejidad Espacial y Temporal -->
+            <section>
+                <h2>Orden Espacial y Temporal (Big O)</h2>
+                <p>En un Árbol AVL, el <strong>auto-balanceo</strong> cambia las reglas del juego y nos asegura que <strong class="highlight-green">no existe un peor caso lineal</strong>.</p>
+                <table class="table-custom">
+                    <tr>
+                        <th>Operación</th>
+                        <th>Peor Caso en AVL</th>
+                        <th>Peor Caso en ABB Normal</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Búsqueda</strong></td>
+                        <td style="color: var(--eia-success); font-weight: bold;">O(log n)</td>
+                        <td style="color: var(--eia-accent); font-weight: bold;">O(n)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inserción</strong></td>
+                        <td style="color: var(--eia-success); font-weight: bold;">O(log n)</td>
+                        <td style="color: var(--eia-accent); font-weight: bold;">O(n)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eliminación</strong></td>
+                        <td style="color: var(--eia-success); font-weight: bold;">O(log n)</td>
+                        <td style="color: var(--eia-accent); font-weight: bold;">O(n)</td>
+                    </tr>
+                </table>
+                
+                <div class="box-info">
+                    <strong class="highlight-text">Orden Espacial:</strong> <strong>O(n)</strong>. Requiere almacenar el valor, los dos punteros y <strong class="highlight-red">la variable de altura</strong> por cada nodo. ¡Consume un poco más de memoria que un ABB normal a cambio de rendimiento estricto!
+                </div>
+            </section>
+
+            <!-- Diapositiva 10: Cuándo Usar AVL -->
+            <section>
+                <h2>¿Cuándo usar AVL y cuándo no?</h2>
+                <div style="display: flex; gap: 20px; font-size: 0.75em;">
+                    <div style="flex: 1; border-right: 1px solid #ccc; padding-right: 15px;">
+                        <h3 style="color: var(--eia-success); font-size: 1.2em;">✅ CUÁNDO USAR AVL</h3>
+                        <ul style="text-align: left;">
+                            <li>Cuando las <strong>búsquedas</strong> son muchísimo más frecuentes que las inserciones o eliminaciones.</li>
+                            <li>Cuando necesitas garantizar <strong>estrictamente</strong> un tiempo de respuesta de <code>O(log n)</code> en bases de datos en memoria o sistemas en tiempo real.</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1; padding-left: 15px;">
+                        <h3 style="color: var(--eia-accent); font-size: 1.2em;">❌ CUÁNDO NO USARLO</h3>
+                        <ul style="text-align: left;">
+                            <li>Si hay demasiadas <strong>inserciones y eliminaciones constantes</strong> (el costo matemático de rotar a cada rato es altísimo). En la industria, para esos casos se prefiere usar un Árbol Rojo-Negro (Red-Black Tree).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 10: Errores Comunes -->
+            <section>
+                <h2>Errores Comunes en el Código</h2>
+                <ul style="font-size: 0.8em; line-height: 1.6; text-align: left;">
+                    <li><strong class="highlight-red">Olvidar actualizar la Altura:</strong> No recalcular la altura de un nodo <strong>después</strong> de insertar o de rotar. Esto destruye la fórmula de equilibrio para los siguientes niveles.</li>
+                    <li><strong class="highlight-red">Orden invertido en Rotación Doble:</strong> Aplicar una Rotación Doble al revés (rotar el padre primero en vez del hijo). Recuerda: siempre se rota primero al hijo para "enderezar el zig-zag".</li>
+                    <li><strong class="highlight-red">Confundir +2 con -2:</strong> Si tu fórmula es <code>Altura(Izq) - Altura(Der)</code>, el +2 significa pesadez a la izquierda. Poner los <code>if</code> al revés creará un bucle infinito de rotaciones erróneas.</li>
+                </ul>
+            </section>
+
+            <!-- Diapositiva 11: Conclusiones -->
+            <section>
+                <h2>Conclusiones Finales</h2>
+                <p>El Árbol AVL intercambia un pequeño costo en inserción (calcular rotaciones) por un <strong class="highlight-text">rendimiento absoluto y garantizado</strong> en búsquedas.</p>
+                <div class="code-wrapper" style="text-align: center; font-size: 0.8em !important; margin-top: 30px;">
+                    <span style="color: #98c379;">"El balance previene el caos lineal."</span>
+                </div>
+                <h3 style="margin-top: 40px; font-size: 1.2em;">¡Gracias!</h3>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'slide', 
+            width: 1024,
+            height: 768,
+            margin: 0.04
+        });
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
